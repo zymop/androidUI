@@ -1,225 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <FrameLayout
+        android:id="@+id/main_frame"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/main_navi"
+        android:layout_alignParentStart="true">
 
-    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp" >
+    </FrameLayout>
 
-        <TextView
-            android:id="@+id/name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Hello IOT!"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:layout_alignParentStart="true"
-            android:layout_below="@+id/name">
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <Switch
-                    android:id="@+id/switch1"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:switchMinWidth="56dp"
-                    android:text="switch1"
-                    android:checked="false"
-                    android:textOff="OFF"
-                    android:textOn="ON"/>
-              <ToggleButton
-                    android:id="@+id/togglebutton1"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:textOn="ON"
-                    android:textOff="OFF" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <Switch
-                    android:id="@+id/switch2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:switchMinWidth="56dp"
-                    android:layout_below="@+id/switch1"
-                    android:layout_alignLeft="@+id/switch1"
-                    android:text="switch2"
-                    android:textOff="OFF"
-                    android:textOn ="ON"/>
-                <ToggleButton
-                    android:id="@+id/togglebutton2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:textOn="ON"
-                    android:textOff="OFF" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <Switch
-                    android:id="@+id/switch3"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:switchMinWidth="56dp"
-                    android:layout_below="@+id/switch2"
-                    android:layout_alignLeft="@+id/switch2"
-                    android:text="switch3"
-                    android:textOff="OFF"
-                    android:textOn ="ON"/>
-                <ToggleButton
-                    android:id="@+id/togglebutton3"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:textOn="ON"
-                    android:textOff="OFF" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <Switch
-                    android:id="@+id/switch4"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:switchMinWidth="56dp"
-                    android:layout_below="@+id/switch3"
-                    android:layout_alignLeft="@+id/switch3"
-                    android:text="switch4"
-                    android:textOff="OFF"
-                    android:textOn ="ON"/>
-                <ToggleButton
-                    android:id="@+id/togglebutton4"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:textOn="ON"
-                    android:textOff="OFF" />
-            </LinearLayout>
-
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <Switch
-                    android:id="@+id/switch5"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:switchMinWidth="56dp"
-                    android:layout_below="@+id/switch4"
-                    android:layout_alignLeft="@+id/switch4"
-                    android:text="switch5"
-                    android:textOff="OFF"
-                    android:textOn ="ON"/>
-                <ToggleButton
-                    android:id="@+id/togglebutton5"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:textOn="ON"
-                    android:textOff="OFF" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <Switch
-                    android:id="@+id/switch6"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:switchMinWidth="56dp"
-                    android:layout_below="@+id/switch5"
-                    android:layout_alignLeft="@+id/switch5"
-                    android:text="switch6"
-                    android:textOff="OFF"
-                    android:textOn ="ON"/>
-                <ToggleButton
-                    android:id="@+id/togglebutton6"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:textOn="ON"
-                    android:textOff="OFF" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <Switch
-                    android:id="@+id/switch7"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:switchMinWidth="56dp"
-                    android:layout_below="@+id/switch6"
-                    android:layout_alignLeft="@+id/switch6"
-                    android:text="switch7"
-                    android:textOff="OFF"
-                    android:textOn ="ON"/>
-                <ToggleButton
-                    android:id="@+id/togglebutton7"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:textOn="ON"
-                    android:textOff="OFF" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <Switch
-                    android:id="@+id/switch8"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:switchMinWidth="56dp"
-                    android:layout_below="@+id/switch7"
-                    android:layout_alignLeft="@+id/switch7"
-                    android:text="switch8"
-                    android:textOff="OFF"
-                    android:textOn ="ON"/>
-                <ToggleButton
-                    android:id="@+id/togglebutton8"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:textOn="ON"
-                    android:textOff="OFF" />
-            </LinearLayout>
-
-
-        </LinearLayout>
-
-
+    <RelativeLayout
+        android:id="@+id/exitRL"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/main_navi">
+        <!--
+        <Button
+            android:id="@+id/ExitButton"
+            android:layout_width="80dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="600dp"
+            android:layout_marginStart="300dp"
+            android:text="Quit"
+            tools:layout_editor_absoluteX="259dp"
+            tools:layout_editor_absoluteY="79dp" />
+        -->
     </RelativeLayout>
 
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/main_navi"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
+        app:itemBackground="@color/design_default_color_background"
+        app:menu="@menu/navi_items" />
 
-
-</android.support.constraint.ConstraintLayout>
+</RelativeLayout>

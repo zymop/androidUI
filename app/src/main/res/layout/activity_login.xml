@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".LoginActivity">
+
+    <LinearLayout
+        android:layout_width="363dp"
+        android:layout_height="650dp"
+        android:layout_alignParentStart="true"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="210dp"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/appId"
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="30dp"
+                android:text="App ID" />
+
+            <EditText
+                android:id="@+id/appIdInput"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:layout_marginStart="30dp"
+                android:inputType="textPersonName" />
+
+            </LinearLayout>>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/gatewayId"
+                    android:layout_width="80dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="30dp"
+                    android:text="Gateway ID" />
+
+                <EditText
+                    android:id="@+id/gateWayInput"
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:layout_marginStart="30dp"
+                    android:inputType="textPersonName" />
+
+            </LinearLayout>>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/gatewayWithSensor"
+                    android:layout_width="120dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="30dp"
+                    android:text="GateWithSensor" />
+
+                <Button
+                    android:id="@+id/ButtonYes"
+                    android:layout_width="64dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="30dp"
+                    android:text="Yes"
+                    tools:layout_editor_absoluteX="259dp"
+                    tools:layout_editor_absoluteY="79dp" />
+
+                <Button
+                    android:id="@+id/ButtonNo"
+                    android:layout_width="64dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="30dp"
+                    android:text="No"
+                    tools:layout_editor_absoluteX="259dp"
+                    tools:layout_editor_absoluteY="79dp" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/ButtonJoin"
+                    android:layout_width="64dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="230dp"
+                    android:text="Join"
+                    tools:layout_editor_absoluteX="259dp"
+                    tools:layout_editor_absoluteY="79dp" />
+
+            </LinearLayout>
+
+    </LinearLayout>
+
+
+</RelativeLayout>

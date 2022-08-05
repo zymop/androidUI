@@ -1,11 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="..\:/Users/Yangming Zai/Desktop/androidAndSeverV4/androidUI/app/src/main/res/layout/activity_login.xml" value="0.259375" />
+        <entry key="..\:/Users/Yangming Zai/Desktop/androidAndSeverV4/androidUI/app/src/main/res/layout/activity_main.xml" value="0.259375" />
+        <entry key="..\:/Users/Yangming Zai/Desktop/androidAndSeverV4/androidUI/app/src/main/res/layout/fragment_analog_and_relay.xml" value="0.259375" />
+        <entry key="..\:/Users/Yangming Zai/Desktop/androidAndSeverV4/androidUI/app/src/main/res/layout/fragment_digital.xml" value="0.259375" />
+        <entry key="..\:/Users/Yangming Zai/Desktop/androidAndSeverV4/androidUI/app/src/main/res/layout/fragment_get.xml" value="0.259375" />
+        <entry key="..\:/Users/Yangming Zai/Desktop/androidUI/app/src/main/res/layout/activity_main.xml" value="0.2" />
+        <entry key="..\:/Users/Yangming Zai/Desktop/readAndWrite/androidUI/app/src/main/res/layout/activity_login.xml" value="0.12916666666666668" />
+        <entry key="..\:/Users/Yangming Zai/Desktop/readAndWrite/androidUI/app/src/main/res/layout/activity_main.xml" value="0.1515625" />
+        <entry key="..\:/Users/Yangming Zai/Desktop/readAndWrite/androidUI/app/src/main/res/layout/fragment_digital.xml" value="0.2037037037037037" />
+        <entry key="..\:/android/UI/IOTDemo/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.240625" />
+        <entry key="..\:/android/UI/IOTDemo/app/src/main/res/drawable/ic_launcher_background.xml" value="0.240625" />
+        <entry key="..\:/android/UI/IOTDemo/app/src/main/res/layout/activity_main.xml" value="0.31911532385466035" />
+        <entry key="..\:/android/UI/IOTDemo/app/src/main/res/layout/fragment_commend.xml" value="0.33" />
+        <entry key="..\:/android/UI/IOTDemo/app/src/main/res/layout/fragment_sensor.xml" value="0.10520833333333333" />
+        <entry key="..\:/android/UI/IOTDemo/app/src/main/res/menu/navi_items.xml" value="0.25" />
+        <entry key="..\:/android/UI/IOTDemo1/app/src/main/res/layout/activity_main.xml" value="0.22" />
+        <entry key="..\:/android/UI/IOTDemo1/app/src/main/res/layout/fragment_analog_and_relay.xml" value="0.21" />
+        <entry key="..\:/android/UI/IOTDemo1/app/src/main/res/layout/fragment_commend.xml" value="0.22" />
+        <entry key="..\:/android/UI/IOTDemo1/app/src/main/res/layout/fragment_digital.xml" value="0.33" />
+        <entry key="..\:/android/UI/IOTDemo1/app/src/main/res/layout/fragment_sensor.xml" value="0.33" />
+        <entry key="..\:/android/UI/IOTDemo1/app/src/main/res/menu/navi_items.xml" value="0.1" />
+        <entry key="..\:/android/UI/IOTDemo2/app/src/main/res/layout/activity_login.xml" value="0.21570926143024619" />
+        <entry key="..\:/android/UI/IOTDemo2/app/src/main/res/layout/activity_main.xml" value="0.1" />
+        <entry key="..\:/android/UI/IOTDemo2/app/src/main/res/layout/fragment_analog_and_relay.xml" value="0.22" />
+        <entry key="..\:/android/UI/IOTDemo2/app/src/main/res/layout/fragment_digital.xml" value="0.25" />
+        <entry key="..\:/android/UI/IOTDemo3/app/src/main/res/layout/activity_login.xml" value="0.1322463768115942" />
+        <entry key="..\:/android/UI/IOTDemo3/app/src/main/res/layout/activity_main.xml" value="0.22" />
+        <entry key="..\:/android/UI/IOTDemo3/app/src/main/res/layout/fragment_analog_and_relay.xml" value="0.22" />
+        <entry key="..\:/android/UI/IOTDemo3/app/src/main/res/layout/fragment_digital.xml" value="0.22" />
+        <entry key="..\:/android/UI/IOTDemo3/app/src/main/res/layout/fragment_get.xml" value="0.1322463768115942" />
+        <entry key="..\:/android/UI/IOTDemo3/app/src/main/res/menu/navi_items.xml" value="0.16666666666666666" />
+      </map>
+    </option>
+  </component>
   <component name="NullableNotNullManager">
     <option name="myDefaultNullable" value="android.support.annotation.Nullable" />
     <option name="myDefaultNotNull" value="android.support.annotation.NonNull" />
     <option name="myNullables">
       <value>
-        <list size="12">
+        <list size="15">
           <item index="0" class="java.lang.String" itemvalue="org.jetbrains.annotations.Nullable" />
           <item index="1" class="java.lang.String" itemvalue="javax.annotation.Nullable" />
           <item index="2" class="java.lang.String" itemvalue="javax.annotation.CheckForNull" />
@@ -18,12 +55,15 @@
           <item index="9" class="java.lang.String" itemvalue="org.checkerframework.checker.nullness.compatqual.NullableDecl" />
           <item index="10" class="java.lang.String" itemvalue="org.checkerframework.checker.nullness.compatqual.NullableType" />
           <item index="11" class="java.lang.String" itemvalue="com.android.annotations.Nullable" />
+          <item index="12" class="java.lang.String" itemvalue="org.eclipse.jdt.annotation.Nullable" />
+          <item index="13" class="java.lang.String" itemvalue="io.reactivex.annotations.Nullable" />
+          <item index="14" class="java.lang.String" itemvalue="io.reactivex.rxjava3.annotations.Nullable" />
         </list>
       </value>
     </option>
     <option name="myNotNulls">
       <value>
-        <list size="11">
+        <list size="15">
           <item index="0" class="java.lang.String" itemvalue="org.jetbrains.annotations.NotNull" />
           <item index="1" class="java.lang.String" itemvalue="javax.annotation.Nonnull" />
           <item index="2" class="java.lang.String" itemvalue="edu.umd.cs.findbugs.annotations.NonNull" />
@@ -35,11 +75,15 @@
           <item index="8" class="java.lang.String" itemvalue="org.checkerframework.checker.nullness.compatqual.NonNullDecl" />
           <item index="9" class="java.lang.String" itemvalue="org.checkerframework.checker.nullness.compatqual.NonNullType" />
           <item index="10" class="java.lang.String" itemvalue="com.android.annotations.NonNull" />
+          <item index="11" class="java.lang.String" itemvalue="org.eclipse.jdt.annotation.NonNull" />
+          <item index="12" class="java.lang.String" itemvalue="io.reactivex.annotations.NonNull" />
+          <item index="13" class="java.lang.String" itemvalue="io.reactivex.rxjava3.annotations.NonNull" />
+          <item index="14" class="java.lang.String" itemvalue="lombok.NonNull" />
         </list>
       </value>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" default="true" project-jdk-name="1.8" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" project-jdk-name="1.8" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
   <component name="ProjectType">

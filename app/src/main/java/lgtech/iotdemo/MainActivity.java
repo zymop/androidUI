@@ -1,54 +1,38 @@
 package lgtech.iotdemo;
 
-import android.support.v7.app.AppCompatActivity;
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.DownloadManager;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.net.wifi.WifiInfo;
-import android.net.wifi.WifiManager;
-import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
-import android.webkit.JavascriptInterface;
 import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.EditText;
-import android.widget.Switch;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ToggleButton;
 
-import org.json.JSONArray;
-import org.json.JSONException;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.MulticastSocket;
-import java.net.UnknownHostException;
-import java.net.Proxy;
-import java.net.SocketException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.Date;
-import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Locale;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.net.Socket;
 
 import fm.*;
 import fm.icelink.*;
@@ -62,6 +46,7 @@ import fm.icelink.webrtc.ReliableDataStream;
 import fm.icelink.websync.*;
 import fm.websync.*;
 import fm.websync.subscribers.*;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -77,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
     private ReliableDataChannel reliableDataChannelInfo;
     private String websyncConferenceChannelName;
 
-    private boolean useWebSyncExtension = false;
+    private boolean useWebSyncExtension = true;
     private boolean slientDevice = true;
     private Stream textStream;
     private Client client;
@@ -91,21 +76,21 @@ public class MainActivity extends AppCompatActivity {
     public static final String BROADCAST_ACTION = "lgtech.adanywhere.service";
 
     private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
-    private LocationManager locationManager=null;
-    private LocationListener locationListener=null;
-    public String cityName=null;
+    private LocationManager locationManager = null;
+    private LocationListener locationListener = null;
+    public String cityName = null;
 
     Intent intent = new Intent(BROADCAST_ACTION);
     private final Handler handler = new Handler();
 
-    private String longitude=null;
-    private String latitude=null;
+    private String longitude = null;
+    private String latitude = null;
 
     private static String uniqueID = null;
     private static final String PREF_UNIQUE_ID = "PREF_UNIQUE_ID";
 
     private static boolean loginOK = false;
-    private JSONObject jObj= null;
+    private JSONObject jObj = null;
     private static boolean signallingStarted;
 
     private static fm.icelink.Conference Conference = null;
@@ -113,190 +98,112 @@ public class MainActivity extends AppCompatActivity {
 
     private final static String TAG = MainActivity.class.getSimpleName();
 
-    Switch sw1;
-    Switch sw2;
-    Switch sw3;
-    Switch sw4;
-    Switch sw5;
-    Switch sw6;
-    Switch sw7;
-    Switch sw8;
-    ToggleButton tgb1, tgb2;
-    ToggleButton tgb3, tgb4;
-    ToggleButton tgb5, tgb6;
-    ToggleButton tgb7, tgb8;
+    private BottomNavigationView mMainNavi;
+    private FrameLayout mMainFrame;
+
+    private DigitalFragment digitalFragment;
+    private AnalogAndRelayFragment analogAndRelayFragment;
+    private GetFragment getFragment;
+
+    EditText et1, et2_1, et2_2, et3, et4;
+    EditText etSD1, etSD2, etSD3, etSD4, etSD5, etSD6, etSD7, etSD8;
+    EditText etGD1, etGD2, etGD3, etGD4, etGD5, etGD6, etGD7, etGD8;
+    EditText etGA1, etGA2, etGA3, etGA4, etGA5;
+    EditText etSR1, etSR2;
+    EditText etGR1, etGR2;
+    String sAppID, sGatewayID, sGateWithSensor;
+
+    private boolean receivedHeartBeat = false;
+    private MainActivity parent = MainActivity.this;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        connectServer("/iiot", 1);
+        Intent intent = getIntent();
 
-        sw1 = (Switch) findViewById(R.id.switch1);
-        sw1.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        sAppID = intent.getStringExtra("AppID");
+        sGatewayID = intent.getStringExtra("GatewayID");
+        sGateWithSensor = intent.getStringExtra("GateWithSensor");
+
+        //Log.d("pppp+ ", sAppID);
+        //Log.d("pppp+ ", sGatewayID);
+        //Log.d("pppp+ ", sGateWithSensor);
+
+        connectServer("/iiotY", 1);
+
+        mMainFrame = (FrameLayout) findViewById(R.id.main_frame);
+        mMainNavi = (BottomNavigationView) findViewById(R.id.main_navi);
+
+        digitalFragment = new DigitalFragment();
+        analogAndRelayFragment = new AnalogAndRelayFragment();
+        getFragment = new GetFragment();
+
+
+        setFragment(digitalFragment);
+        //send("GateWithSensor, " + sGateWithSensor);
+
+        mMainNavi.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                String str = "0";
-                if(isChecked)
-                    str = "1";
-                try {
-                    send("command1=" + str);
-                } catch (Exception e) {
-                    e.printStackTrace();
+            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+
+                switch (menuItem.getItemId()) {
+                    case R.id.navi_digital:
+                        setFragment(digitalFragment);
+                        return true;
+                    case R.id.navi_Analog:
+                        setFragment(analogAndRelayFragment);
+                        return true;
+                    case R.id.navi_Get:
+                        setFragment(getFragment);
+                        return true;
+                    default:
+                        return false;
                 }
             }
         });
 
-        sw2 = (Switch) findViewById(R.id.switch2);
-        sw2.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        /*
+        exitB = (Button) findViewById(R.id.ExitButton);
+        exitB.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                String str = "0";
-                if(isChecked)
-                    str = "1";
-                try {
-                    send("command2=" + str);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+            public void onClick(View view) {
+                MainActivity.this.finishAffinity();
+                //((LoginActivity)getActivity()).close();
+                System.exit(0);
             }
         });
 
-        sw3 = (Switch) findViewById(R.id.switch3);
-        sw3.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                String str = "0";
-                if(isChecked)
-                    str = "1";
-                try {
-                    send("command3=" + str);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-        sw4 = (Switch) findViewById(R.id.switch4);
-        sw4.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                String str = "0";
-                if(isChecked)
-                    str = "1";
-                try {
-                    send("command4=" + str);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-
-        sw5 = (Switch) findViewById(R.id.switch5);
-        sw5.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                String str = "0";
-                if(isChecked)
-                    str = "1";
-                try {
-                    send("command5=" + str);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-
-        sw6 = (Switch) findViewById(R.id.switch6);
-        sw6.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                String str = "0";
-                if(isChecked)
-                    str = "1";
-                try {
-                    send("command6=" + str);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-
-        sw7 = (Switch) findViewById(R.id.switch7);
-        sw7.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                String str = "0";
-                if(isChecked)
-                    str = "1";
-                try {
-                    send("command7=" + str);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-
-        sw8 = (Switch) findViewById(R.id.switch8);
-        sw8.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                String str = "0";
-                if(isChecked)
-                    str = "1";
-                try {
-                    send("command8=" + str);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-        tgb1 = (ToggleButton) findViewById(R.id.togglebutton1);
-        tgb2 = (ToggleButton) findViewById(R.id.togglebutton2);
-        tgb3 = (ToggleButton) findViewById(R.id.togglebutton3);
-        tgb4 = (ToggleButton) findViewById(R.id.togglebutton4);
-        tgb5 = (ToggleButton) findViewById(R.id.togglebutton5);
-        tgb6 = (ToggleButton) findViewById(R.id.togglebutton6);
-        tgb7 = (ToggleButton) findViewById(R.id.togglebutton7);
-        tgb8 = (ToggleButton) findViewById(R.id.togglebutton8);
-
-
+         */
     }
 
+    private void setFragment(androidx.fragment.app.Fragment fragment) {
+        androidx.fragment.app.FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.replace(R.id.main_frame, fragment);
+        fragmentTransaction.commit();
+    }
 
-    void send(String command)
-    {
+    String getsGateWithSensor() {
+        return sGateWithSensor;
+    }
+
+    void send(String command) {
         // Get message from user input.
         final String message = command;
 
         // Write message to screen.
 
-        background.execute(new Runnable()
-        {
+        background.execute(new Runnable() {
             @Override
-            public void run()
-            {
-                try
-                {
-
-                    // Send message to the conference links.
-                    if(useReliableChannels)
-                    {
+            public void run() {
+                try {
+                    if (useReliableChannels) {
                         ConferenceExtensions.sendReliableString(conference, reliableDataChannelInfo, message);
-                    }
-                    else
-                    {
+                    } else {
                         ConferenceExtensions.sendData(conference, unreliableDataChannelInfo, message);
                     }
-                }
-                catch (Exception ex)
-                {
+                } catch (Exception ex) {
                     ex.printStackTrace();
                 }
             }
@@ -304,34 +211,30 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private String getPeerName(BaseLinkArgs e)
-    {
+    private String getPeerName(BaseLinkArgs e) {
         @SuppressWarnings("unchecked")
-        HashMap<String, Record> peerBindings = (useWebSyncExtension ? BaseLinkArgsExtensions.getPeerClient(e).getBoundRecords() : (HashMap<String, Record>)e.getPeerState());
-        try
-        {
+        HashMap<String, Record> peerBindings = (useWebSyncExtension ? BaseLinkArgsExtensions.getPeerClient(e).getBoundRecords() : (HashMap<String, Record>) e.getPeerState());
+        try {
 //                String ip = Serializer.deserializeString(peerBindings.get("ip").getValueJson());
             String name = Serializer.deserializeString(peerBindings.get("name").getValueJson());
             return Serializer.deserializeString(peerBindings.get("name").getValueJson());
-        }
-        catch (Exception ex)
-        {
+        } catch (Exception ex) {
             ex.printStackTrace();
             return null;
         }
     }
 
-    public void toast(String msg)
-    {
-        Toast.makeText(this,msg, Toast.LENGTH_LONG).show();
+    public void toast(String msg) {
+        Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
     }
+
+    public void shortToast(String msg) {Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();}
 
     public String getDeviceId() {
         return Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
     }
 
-    public void scriptAlertBox(String title, String mymessage)
-    {
+    public void scriptAlertBox(String title, String mymessage) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(mymessage)
                 .setCancelable(false)
@@ -351,379 +254,462 @@ public class MainActivity extends AppCompatActivity {
         final String name = "name";
         final int myParam = param;
         loginOK = false;
-        new Thread() {
-            public void run()  {
-                String disMsg;
 
-                try {
+        FMThread fmThread = new FMThread(mychat, name, parent);
+        fmThread.start();
+        //HeartBeatThread heartBeatThread = new HeartBeatThread();
+        //heartBeatThread.start();
 
+    }
 
-                    if(useReliableChannels)
-                    {
-                        // Create a reliable WebRTC data channel description, including a
-                        // handler for processing received messages.
-                        reliableDataChannelInfo = new ReliableDataChannel(!orderedDeliveryForReliableChannels,"mydatachannel","chat")
-                        {{
-                            setOnReceive(new SingleAction<ReliableDataReceiveArgs>()
-                            {
-                                public void invoke(ReliableDataReceiveArgs e) {
-                                    String msg = e.getDataString();
-                                    if(!msg.equals("hello")) {
-                                        String[] separated = msg.split("=");
-                                        boolean checked = false;
-                                        if (Integer.valueOf(separated[1]) == 1) {
-                                            checked = true;
-                                        }
-                                        final boolean bCheck = checked;
-                                        switch (separated[0]) {
-                                            case "sensor1":
-                                                runOnUiThread(new Runnable() {
-                                                    public void run() {
-                                                        tgb1.setChecked(bCheck);
-                                                    }
-                                                });
-                                                break;
-                                            case "sensor2":
-                                                runOnUiThread(new Runnable() {
-                                                    public void run() {
-                                                        tgb2.setChecked(bCheck);
-                                                    }
-                                                });
-                                                break;
-                                            case "sensor3":
-                                                runOnUiThread(new Runnable() {
-                                                    public void run() {
-                                                        tgb3.setChecked(bCheck);
-                                                    }
-                                                });
-                                                break;
-                                            case "sensor4":
-                                                runOnUiThread(new Runnable() {
-                                                    public void run() {
-                                                        tgb4.setChecked(bCheck);
-                                                    }
-                                                });
-                                                break;
-                                            case "sensor5":
-                                                runOnUiThread(new Runnable() {
-                                                    public void run() {
-                                                        tgb5.setChecked(bCheck);
-                                                    }
-                                                });
-                                                break;
-                                            case "sensor6":
-                                                runOnUiThread(new Runnable() {
-                                                    public void run() {
-                                                        tgb6.setChecked(bCheck);
-                                                    }
-                                                });
-                                                break;
-                                            case "sensor7":
-                                                runOnUiThread(new Runnable() {
-                                                    public void run() {
-                                                        tgb7.setChecked(bCheck);
-                                                    }
-                                                });
-                                                break;
-                                            case "sensor8":
-                                                runOnUiThread(new Runnable() {
-                                                    public void run() {
-                                                        tgb8.setChecked(bCheck);
-                                                    }
-                                                });
-                                                break;
+    class FMThread extends Thread {
+        String mychat, name;
+        MainActivity parent;
 
-                                        }
+        public FMThread(String mychat, String name, MainActivity parent) {
+            this.mychat = mychat;
+            this.name = name;
+            this.parent = parent;
+        }
+
+        public void run() {
+            String disMsg;
+            try {
+                if (useReliableChannels) {
+                    // Create a reliable WebRTC data channel description, including a
+                    // handler for processing received messages.
+                    reliableDataChannelInfo = new ReliableDataChannel(!orderedDeliveryForReliableChannels, "mydatachannel", "chat") {{
+                        setOnReceive(new SingleAction<ReliableDataReceiveArgs>() {
+                            public void invoke(ReliableDataReceiveArgs e) {
+                                String msg = e.getDataString();
+                                if (msg.equals("I am up")) {
+                                    receivedHeartBeat = true;
+                                    //Log.d("test", "received: I am up");
+                                    send("I am up");
+
+                                } else {
+                                    String[] separated = msg.split(",");
+                                    //Log.d("pppp+",msg);
+                                    et1 = (EditText) findViewById(R.id.textInput1);
+                                    et2_1 = (EditText) findViewById(R.id.textInput2_1);
+                                    et2_2 = (EditText) findViewById(R.id.textInput2_2);
+                                    et3 = (EditText) findViewById(R.id.textInput3);
+                                    et4 = (EditText) findViewById(R.id.textInput4);
+
+                                    etSD1 = (EditText) findViewById(R.id.textInputSD1);
+                                    etSD2 = (EditText) findViewById(R.id.textInputSD2);
+                                    etSD3 = (EditText) findViewById(R.id.textInputSD3);
+                                    etSD4 = (EditText) findViewById(R.id.textInputSD4);
+                                    etSD5 = (EditText) findViewById(R.id.textInputSD5);
+                                    etSD6 = (EditText) findViewById(R.id.textInputSD6);
+                                    etSD7 = (EditText) findViewById(R.id.textInputSD7);
+                                    etSD8 = (EditText) findViewById(R.id.textInputSD8);
+                                    etSR1 = (EditText) findViewById(R.id.textInputSR1);
+                                    etSR2 = (EditText) findViewById(R.id.textInputSR2);
+
+                                    etGD1 = (EditText) findViewById(R.id.textInputGD1);
+                                    etGD2 = (EditText) findViewById(R.id.textInputGD2);
+                                    etGD3 = (EditText) findViewById(R.id.textInputGD3);
+                                    etGD4 = (EditText) findViewById(R.id.textInputGD4);
+                                    etGD5 = (EditText) findViewById(R.id.textInputGD5);
+                                    etGD6 = (EditText) findViewById(R.id.textInputGD6);
+                                    etGD7 = (EditText) findViewById(R.id.textInputGD7);
+                                    etGD8 = (EditText) findViewById(R.id.textInputGD8);
+                                    etGA1 = (EditText) findViewById(R.id.textInputGA1);
+                                    etGA2 = (EditText) findViewById(R.id.textInputGA2);
+                                    etGA3 = (EditText) findViewById(R.id.textInputGA3);
+                                    etGA4 = (EditText) findViewById(R.id.textInputGA4);
+                                    etGA5 = (EditText) findViewById(R.id.textInputGA5);
+                                    etGR1 = (EditText) findViewById(R.id.textInputGR1);
+                                    etGR2 = (EditText) findViewById(R.id.textInputGR2);
+                                    if (separated[1].equals(" NOTIFY") && separated[2].equals(" PUSH BUTTON PRESSED"))
+                                        et1.setText("PRESSED");
+                                    else if (separated[1].equals(" NOTIFY") && separated[2].equals(" POTENTIOMETER")) {
+                                        et2_1.setText(separated[3]);
+                                        et2_2.setText(separated[4]);
+                                    } else if (separated[1].equals(" NOTIFY") && separated[2].equals(" RED LED"))
+                                        et3.setText(separated[3]);
+                                    else if (separated[1].equals(" NOTIFY") && separated[2].equals(" STEP MOTOR"))
+                                        et4.setText(separated[3]);
+                                    else if (separated[1].equals(" NOTIFY") && separated[2].equals(" DIGITAL") && separated[3].equals(" 1")) {
+                                        etGD1.setText(separated[4]);
+                                        etSD1.setText(separated[4]);
+                                    } else if (separated[1].equals(" NOTIFY") && separated[2].equals(" DIGITAL") && separated[3].equals(" 2")) {
+                                        etSD2.setText(separated[4]);
+                                        etGD2.setText(separated[4]);
+                                    } else if (separated[1].equals(" NOTIFY") && separated[2].equals(" DIGITAL") && separated[3].equals(" 3")) {
+                                        etGD3.setText(separated[4]);
+                                        etSD3.setText(separated[4]);
+                                    } else if (separated[1].equals(" NOTIFY") && separated[2].equals(" DIGITAL") && separated[3].equals(" 4")) {
+                                        etGD4.setText(separated[4]);
+                                        etSD4.setText(separated[4]);
+                                    } else if (separated[1].equals(" NOTIFY") && separated[2].equals(" DIGITAL") && separated[3].equals(" 5")) {
+                                        etGD5.setText(separated[4]);
+                                        etSD5.setText(separated[4]);
+                                    } else if (separated[1].equals(" NOTIFY") && separated[2].equals(" DIGITAL") && separated[3].equals(" 6")) {
+                                        etGD6.setText(separated[4]);
+                                        etSD6.setText(separated[4]);
+                                    } else if (separated[1].equals(" NOTIFY") && separated[2].equals(" DIGITAL") && separated[3].equals(" 7")) {
+                                        etGD7.setText(separated[4]);
+                                        etSD7.setText(separated[4]);
+                                    } else if (separated[1].equals(" NOTIFY") && separated[2].equals(" DIGITAL") && separated[3].equals(" 8")) {
+                                        etGD8.setText(separated[4]);
+                                        etSD8.setText(separated[4]);
+                                    } else if (separated[1].equals(" NOTIFY") && separated[2].equals(" ANALOG") && separated[3].equals(" 1"))
+                                        etGA1.setText(separated[4]);
+                                    else if (separated[1].equals(" NOTIFY") && separated[2].equals(" ANALOG") && separated[3].equals(" 2"))
+                                        etGA2.setText(separated[4]);
+                                    else if (separated[1].equals(" NOTIFY") && separated[2].equals(" ANALOG") && separated[3].equals(" 3"))
+                                        etGA3.setText(separated[4]);
+                                    else if (separated[1].equals(" NOTIFY") && separated[2].equals(" ANALOG") && separated[3].equals(" 4"))
+                                        etGA4.setText(separated[4]);
+                                    else if (separated[1].equals(" NOTIFY") && separated[2].equals(" ANALOG") && separated[3].equals(" 5"))
+                                        etGA5.setText(separated[4]);
+                                    else if (separated[1].equals(" NOTIFY") && separated[2].equals(" RELAY") && separated[3].equals(" 1")) {
+                                        etGR1.setText(separated[4]);
+                                        etSR1.setText(separated[4]);
+                                    } else if (separated[1].equals(" NOTIFY") && separated[2].equals(" RELAY") && separated[3].equals(" 2")) {
+                                        etGR2.setText(separated[4]);
+                                        etSR2.setText(separated[4]);
+                                    } else if (separated[1].equals(" NOTIFY") && separated[2].equals(" ALL_DIGITAL")) {
+                                        etGD1.setText(separated[3]);
+                                        etGD2.setText(separated[4]);
+                                        etGD3.setText(separated[5]);
+                                        etGD4.setText(separated[6]);
+                                        etGD5.setText(separated[7]);
+                                        etGD6.setText(separated[8]);
+                                        etGD7.setText(separated[9]);
+                                        etGD8.setText(separated[10]);
+
+                                        etSD1.setText(separated[3]);
+                                        etSD2.setText(separated[4]);
+                                        etSD3.setText(separated[5]);
+                                        etSD4.setText(separated[6]);
+                                        etSD5.setText(separated[7]);
+                                        etSD6.setText(separated[8]);
+                                        etSD7.setText(separated[9]);
+                                        etSD8.setText(separated[10]);
+                                    } else if (separated[1].equals(" NOTIFY") && separated[2].equals(" ALL_ANALOG")) {
+                                        etGA1.setText(separated[3]);
+                                        etGA2.setText(separated[4]);
+                                        etGA3.setText(separated[5]);
+                                        etGA4.setText(separated[6]);
+                                        etGA5.setText(separated[7]);
+                                    } else if (separated[1].equals(" NOTIFY") && separated[2].equals(" ALL_RELAY")) {
+                                        etGR1.setText(separated[3]);
+                                        etGR2.setText(separated[4]);
+
+                                        etSR1.setText(separated[3]);
+                                        etSR2.setText(separated[4]);
+                                    } else if (separated[1].equals(" WRITE") && separated[2].equals(" DIGITAL")
+                                            && separated[3].equals(" 1") && separated[5].equals(" 0")) {
+                                        etSD1.setText(separated[4]);
+                                    } else if (separated[1].equals(" WRITE") && separated[2].equals(" DIGITAL")
+                                            && separated[3].equals(" 2") && separated[5].equals(" 0")) {
+                                        etSD2.setText(separated[4]);
+                                    } else if (separated[1].equals(" WRITE") && separated[2].equals(" DIGITAL")
+                                            && separated[3].equals(" 3") && separated[5].equals(" 0")) {
+                                        etSD3.setText(separated[4]);
+                                    } else if (separated[1].equals(" WRITE") && separated[2].equals(" DIGITAL")
+                                            && separated[3].equals(" 4") && separated[5].equals(" 0")) {
+                                        etSD4.setText(separated[4]);
+                                    } else if (separated[1].equals(" WRITE") && separated[2].equals(" DIGITAL")
+                                            && separated[3].equals(" 5") && separated[5].equals(" 0")) {
+                                        etSD5.setText(separated[4]);
+                                    } else if (separated[1].equals(" WRITE") && separated[2].equals(" DIGITAL")
+                                            && separated[3].equals(" 6") && separated[5].equals(" 0")) {
+                                        etSD6.setText(separated[4]);
+                                    } else if (separated[1].equals(" WRITE") && separated[2].equals(" DIGITAL")
+                                            && separated[3].equals(" 7") && separated[5].equals(" 0")) {
+                                        etSD7.setText(separated[4]);
+                                    } else if (separated[1].equals(" WRITE") && separated[2].equals(" DIGITAL")
+                                            && separated[3].equals(" 8") && separated[5].equals(" 0")) {
+                                        etSD8.setText(separated[4]);
+                                    } else if (separated[1].equals(" WRITE") && separated[2].equals(" RELAY")
+                                            && separated[3].equals(" 1") && separated[5].equals(" 0")) {
+                                        etSR1.setText(separated[4]);
+                                    } else if (separated[1].equals(" WRITE") && separated[2].equals(" RELAY")
+                                            && separated[3].equals(" 2") && separated[5].equals(" 0")) {
+                                        etSR2.setText(separated[4]);
+                                    } else if (separated[1].equals(" READ") && separated[2].equals(" DIGITAL")
+                                            && separated[3].equals(" 1") && separated[4].equals(" 0")) {
+                                        etGD1.setText(separated[5]);
+                                    } else if (separated[1].equals(" READ") && separated[2].equals(" DIGITAL")
+                                            && separated[3].equals(" 2") && separated[4].equals(" 0")) {
+                                        etGD2.setText(separated[5]);
+                                    } else if (separated[1].equals(" READ") && separated[2].equals(" DIGITAL")
+                                            && separated[3].equals(" 3") && separated[4].equals(" 0")) {
+                                        etGD3.setText(separated[5]);
+                                    } else if (separated[1].equals(" READ") && separated[2].equals(" DIGITAL")
+                                            && separated[3].equals(" 4") && separated[4].equals(" 0")) {
+                                        etGD4.setText(separated[5]);
+                                    } else if (separated[1].equals(" READ") && separated[2].equals(" DIGITAL")
+                                            && separated[3].equals(" 5") && separated[4].equals(" 0")) {
+                                        etGD5.setText(separated[5]);
+                                    } else if (separated[1].equals(" READ") && separated[2].equals(" DIGITAL")
+                                            && separated[3].equals(" 6") && separated[4].equals(" 0")) {
+                                        etGD6.setText(separated[5]);
+                                    } else if (separated[1].equals(" READ") && separated[2].equals(" DIGITAL")
+                                            && separated[3].equals(" 7") && separated[4].equals(" 0")) {
+                                        etGD7.setText(separated[5]);
+                                    } else if (separated[1].equals(" READ") && separated[2].equals(" DIGITAL")
+                                            && separated[3].equals(" 8") && separated[4].equals(" 0")) {
+                                        etGD8.setText(separated[5]);
+                                    } else if (separated[1].equals(" READ") && separated[2].equals(" ANALOG")
+                                            && separated[3].equals(" 1") && separated[4].equals(" 0")) {
+                                        etGA1.setText(separated[5]);
+                                    } else if (separated[1].equals(" READ") && separated[2].equals(" ANALOG")
+                                            && separated[3].equals(" 2") && separated[4].equals(" 0")) {
+                                        etGA2.setText(separated[5]);
+                                    } else if (separated[1].equals(" READ") && separated[2].equals(" ANALOG")
+                                            && separated[3].equals(" 3") && separated[4].equals(" 0")) {
+                                        etGA3.setText(separated[5]);
+                                    } else if (separated[1].equals(" READ") && separated[2].equals(" ANALOG")
+                                            && separated[3].equals(" 4") && separated[4].equals(" 0")) {
+                                        etGA4.setText(separated[5]);
+                                    } else if (separated[1].equals(" READ") && separated[2].equals(" ANALOG")
+                                            && separated[3].equals(" 5") && separated[4].equals(" 0")) {
+                                        etGA5.setText(separated[5]);
+                                    } else if (separated[1].equals(" READ") && separated[2].equals(" RELAY")
+                                            && separated[3].equals(" 1") && separated[4].equals(" 0")) {
+                                        etGR1.setText(separated[5]);
+                                    } else if (separated[1].equals(" READ") && separated[2].equals(" RELAY")
+                                            && separated[3].equals(" 2") && separated[4].equals(" 0")) {
+                                        etGR2.setText(separated[5]);
                                     }
-                               }
-                            });
-                        }};
-
-                        // Create a WebRTC data channel stream description using
-                        // our data channel.
-                        ReliableDataStream dataChannelStream = new ReliableDataStream(reliableDataChannelInfo);
-
-                        // Create a conference using our stream description.
-                        conference = new Conference(icelinkServerAddress, new Stream[] { dataChannelStream });
-                        Conference = conference;
-                        websyncConferenceChannelName=mychat;
-                    }
-                    else
-                    {
-                        // Create an unreliable  WebRTC data channel description, including a
-                        // handler for processing received messages.
-                        unreliableDataChannelInfo = new DataChannelInfo("mydatachannelChat")
-                        {{
-                            setOnReceive(new SingleAction<DataChannelReceiveArgs>()
-                            {
-                                public void invoke(DataChannelReceiveArgs e)
-                                {
-                                    //   writeLine("%s: %s", getPeerName(e), e.getData());
                                 }
-                            });
-                        }};
-                        // Create a WebRTC data channel stream description using
-                        // our data channel.
-                        DataChannelStream dataChannelStream = new DataChannelStream(unreliableDataChannelInfo);
+                            }
+                        });
+                    }};
 
-                        // Create a conference using our stream description.
-                        conference = new Conference(icelinkServerAddress, new Stream[] { dataChannelStream });
-                        websyncConferenceChannelName="/reliablechat";
+                    // Create a WebRTC data channel stream description using
+                    // our data channel.
+                    ReliableDataStream dataChannelStream = new ReliableDataStream(reliableDataChannelInfo);
+
+                    // Create a conference using our stream description.
+                    conference = new Conference(icelinkServerAddress, new Stream[]{dataChannelStream});
+                    Conference = conference;
+                    websyncConferenceChannelName = mychat;
+                } else {
+                    // Create an unreliable  WebRTC data channel description, including a
+                    // handler for processing received messages.
+                    unreliableDataChannelInfo = new DataChannelInfo("mydatachannelChat") {{
+                        setOnReceive(new SingleAction<DataChannelReceiveArgs>() {
+                            public void invoke(DataChannelReceiveArgs e) {
+                                //   writeLine("%s: %s", getPeerName(e), e.getData());
+                            }
+                        });
+                    }};
+                    // Create a WebRTC data channel stream description using
+                    // our data channel.
+                    DataChannelStream dataChannelStream = new DataChannelStream(unreliableDataChannelInfo);
+
+                    // Create a conference using our stream description.
+                    conference = new Conference(icelinkServerAddress, new Stream[]{dataChannelStream});
+                    websyncConferenceChannelName = "/reliablechat";
+                }
+                // Supply TURN relay credentials in case we are behind a
+                // highly restrictive firewall. These credentials will be
+                // verified by the TURN server.
+                conference.setRelayUsername("cloudkiller");
+                conference.setRelayPassword("Jackie01!");
+
+                // Add a few event handlers to the conference so we can see
+                // when a new P2P link is created or changes state.
+                conference.addOnLinkInit(new SingleAction<LinkInitArgs>() {
+                    public void invoke(LinkInitArgs e) {
+                        //Log.d(TAG, "Link to " + getPeerName(e) + " initializing...");
                     }
-                    // Supply TURN relay credentials in case we are behind a
-                    // highly restrictive firewall. These credentials will be
-                    // verified by the TURN server.
-                    conference.setRelayUsername("cloudkiller");
-                    conference.setRelayPassword("Jackie01!");
-
-                    // Add a few event handlers to the conference so we can see
-                    // when a new P2P link is created or changes state.
-                    conference.addOnLinkInit(new SingleAction<LinkInitArgs>()
-                    {
-                        public void invoke(LinkInitArgs e)
-                        {
-                            Log.d(TAG,"Link to " + getPeerName(e) + " initializing...");
+                });
+                conference.addOnLinkUp(new SingleAction<LinkUpArgs>() {
+                    public void invoke(LinkUpArgs e) {
+                        //Log.d(TAG, "Link to " + getPeerName(e) + " is UP.");
+                        //Log.d(TAG,"Type a message and click/press Send.");
+                        try {
+                            ConferenceExtensions.sendReliableString(conference, reliableDataChannelInfo, "I am up");
+                            //Log.d("test","send: I am up");
+                        } catch (Exception exception) {
+                            exception.printStackTrace();
                         }
-                    });
-                    conference.addOnLinkUp(new SingleAction<LinkUpArgs>()
-                    {
-                        public void invoke(LinkUpArgs e)
-                        {
-                            Log.d(TAG,"Link to " + getPeerName(e) + " is UP.");
-                            Log.d(TAG,"Type a message and click/press Send.");
-                        }
-                    });
-                    conference.addOnLinkDown(new SingleAction<LinkDownArgs>()
-                    {
-                        public void invoke(LinkDownArgs e)
-                        {
-                            Log.d(TAG,"Link to " + getPeerName(e) + " is DOWN. " + e.getException().getMessage());
-                        }
-                    });
+                    }
+                });
+                conference.addOnLinkDown(new SingleAction<LinkDownArgs>() {
+                    public void invoke(LinkDownArgs e) {
+                        //Log.d(TAG, "Link to " + getPeerName(e) + " is DOWN. " + e.getException().getMessage());
+                        receivedHeartBeat = false;
+                        parent.runOnUiThread(new Runnable() {
+                            public void run() {
+                                Toast.makeText(parent.getBaseContext(), "Link is Down", Toast.LENGTH_LONG).show();
+                                //Log.d("test","what");
 
-                    // Before we can create a P2P link, the peers have to exchange
-                    // some information - specifically descriptions of the streams
-                    // (called the offer/answer) and some local network addresses
-                    // (called candidates). IceLink generates this information
-                    // automatically, but you are responsible for distributing it
-                    // to the peer as quickly as possible. This is called "signalling".
-
-                    // We're going to use WebSync here, but other popular options
-                    // include SIP and XMPP - any real-time messaging system will do.
-                    // We use WebSync since it uses HTTP (WebSockets/long-polling) and
-                    // therefore has no issues with firewalls or connecting from
-                    // JavaScript-based web applications.
-
-                    // Create a WebSync client and establish a persistent
-                    // connection to the server.
-                    client = new Client(websyncServerUrl);
-                    //client.setDomainKey(new Guid("5fb3bdc2-ea34-11dd-9b91-3e6b56d89593")); // WebSync On-Demand
-                    client.connect(new ConnectArgs()
-                    {{
-                        setOnSuccess(new SingleAction<ConnectSuccessArgs>()
-                        {
-                            public void invoke(ConnectSuccessArgs e)
-                            {
-                                //writeLine("-- Connected to WebSync.");
                             }
                         });
-                        setOnFailure(new SingleAction<ConnectFailureArgs>()
-                        {
-                            public void invoke(ConnectFailureArgs e)
-                            {
-                                //writeLine( e.getException().getMessage());
+                        //Log.d("test","digitalFragment.showDisconnection");
+                    }
+                });
 
-                                e.setRetry(false);
+                // Before we can create a P2P link, the peers have to exchange
+                // some information - specifically descriptions of the streams
+                // (called the offer/answer) and some local network addresses
+                // (called candidates). IceLink generates this information
+                // automatically, but you are responsible for distributing it
+                // to the peer as quickly as possible. This is called "signalling".
+
+                // We're going to use WebSync here, but other popular options
+                // include SIP and XMPP - any real-time messaging system will do.
+                // We use WebSync since it uses HTTP (WebSockets/long-polling) and
+                // therefore has no issues with firewalls or connecting from
+                // JavaScript-based web applications.
+
+                // Create a WebSync client and establish a persistent
+                // connection to the server.
+                client = new Client(websyncServerUrl);
+                //client.setDomainKey(new Guid("5fb3bdc2-ea34-11dd-9b91-3e6b56d89593")); // WebSync On-Demand
+                client.connect(new ConnectArgs() {{
+                    setOnSuccess(new SingleAction<ConnectSuccessArgs>() {
+                        public void invoke(ConnectSuccessArgs e) {
+                            //writeLine("-- Connected to WebSync.");
+                        }
+                    });
+                    setOnFailure(new SingleAction<ConnectFailureArgs>() {
+                        public void invoke(ConnectFailureArgs e) {
+                            //writeLine( e.getException().getMessage());
+
+                            e.setRetry(false);
+                        }
+                    });
+                    setOnStreamFailure(new SingleAction<StreamFailureArgs>() {
+                        public void invoke(StreamFailureArgs e) {
+                            //writeLine( e.getException().getMessage());
+                        }
+                    });
+                }});
+
+                // Bind the user-supplied name to the WebSync client. Later,
+                // when linking, we will store a peer's bound records in the
+                // IceLink peer state so we can get their name at any time.
+                client.bind(new BindArgs("name", Serializer.serializeString(name)));
+
+                // IceLink includes a WebSync client extension that will
+                // automatically manage session negotiation for you. If
+                // you are not using WebSync, see the 'else' block for a
+                // session negotiation template.
+                if (useWebSyncExtension) {
+                    // Manage the conference automatically using a WebSync
+                    // channel. P2P links will be created automatically to
+                    // peers that join the same channel.
+                    ClientExtensions.joinConference(client, new JoinConferenceArgs(websyncConferenceChannelName, conference) {{
+                        setOnSuccess(new SingleAction<JoinConferenceSuccessArgs>() {
+                            public void invoke(JoinConferenceSuccessArgs e) {
                             }
                         });
-                        setOnStreamFailure(new SingleAction<StreamFailureArgs>()
-                        {
-                            public void invoke(StreamFailureArgs e)
-                            {
-                                //writeLine( e.getException().getMessage());
+                        setOnFailure(new SingleAction<JoinConferenceFailureArgs>() {
+                            public void invoke(JoinConferenceFailureArgs e) {
                             }
                         });
                     }});
+                } else {
+                    // If the WebSync stream goes down, destroy all P2P links.
+                    // The WebSync client reconnect procedure will cause new
+                    // P2P links to be created.
+                    client.addOnStreamFailure(new SingleAction<StreamFailureArgs>() {
+                        public void invoke(StreamFailureArgs e) {
+                            try {
+                                conference.unlinkAll();
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                            }
+                        }
+                    });
 
-                    // Bind the user-supplied name to the WebSync client. Later,
-                    // when linking, we will store a peer's bound records in the
-                    // IceLink peer state so we can get their name at any time.
-                    client.bind(new BindArgs("name", Serializer.serializeString(name)));
+                    // Add a couple event handlers to the conference to send
+                    // generated offers/answers and candidates to a peer.
+                    // The peer ID is something we define later. In this case,
+                    // it represents the remote WebSync client ID. WebSync's
+                    // "notify" method is used to send data to a specific client.
+                    conference.addOnLinkOfferAnswer(new SingleAction<LinkOfferAnswerArgs>() {
+                        public void invoke(LinkOfferAnswerArgs e) {
+                            try {
+                                client.notify(new NotifyArgs(new Guid(e.getPeerId()), e.getOfferAnswer().toJson(), "offeranswer"));
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                            }
+                        }
+                    });
+                    conference.addOnLinkCandidate(new SingleAction<LinkCandidateArgs>() {
+                        public void invoke(LinkCandidateArgs e) {
+                            try {
+                                client.notify(new NotifyArgs(new Guid(e.getPeerId()), e.getCandidate().toJson(), "candidate"));
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                            }
+                        }
+                    });
 
-                    // IceLink includes a WebSync client extension that will
-                    // automatically manage session negotiation for you. If
-                    // you are not using WebSync, see the 'else' block for a
-                    // session negotiation template.
-                    if (useWebSyncExtension)
-                    {
-                        // Manage the conference automatically using a WebSync
-                        // channel. P2P links will be created automatically to
-                        // peers that join the same channel.
-                        ClientExtensions.joinConference(client, new JoinConferenceArgs(websyncConferenceChannelName, conference)
-                        {{
-                            setOnSuccess(new SingleAction<JoinConferenceSuccessArgs>()
-                            {
-                                public void invoke(JoinConferenceSuccessArgs e)
-                                {
+                    // Add an event handler to the WebSync client to receive
+                    // incoming offers/answers and candidates from a peer.
+                    // Call the "receiveOfferAnswer" or "receiveCandidate"
+                    // method to pass the information to the conference.
+                    client.addOnNotify(new SingleAction<NotifyReceiveArgs>() {
+                        public void invoke(NotifyReceiveArgs e) {
+                            try {
+                                String peerId = e.getNotifyingClient().getClientId().toString();
+                                Object peerState = e.getNotifyingClient().getBoundRecords();
+                                if (e.getTag().equals("offeranswer")) {
+                                    conference.receiveOfferAnswer(OfferAnswer.fromJson(e.getDataJson()), peerId, peerState);
+                                } else if (e.getTag().equals("candidate")) {
+                                    conference.receiveCandidate(Candidate.fromJson(e.getDataJson()), peerId);
                                 }
-                            });
-                            setOnFailure(new SingleAction<JoinConferenceFailureArgs>()
-                            {
-                                public void invoke(JoinConferenceFailureArgs e)
-                                {
-                                }
-                            });
-                        }});
-                    }
-                    else
-                    {
-                        // If the WebSync stream goes down, destroy all P2P links.
-                        // The WebSync client reconnect procedure will cause new
-                        // P2P links to be created.
-                        client.addOnStreamFailure(new SingleAction<StreamFailureArgs>()
-                        {
-                            public void invoke(StreamFailureArgs e)
-                            {
-                                try
-                                {
-                                    conference.unlinkAll();
-                                }
-                                catch (Exception ex)
-                                {
-                                    ex.printStackTrace();
-                                }
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
                             }
-                        });
+                        }
+                    });
 
-                        // Add a couple event handlers to the conference to send
-                        // generated offers/answers and candidates to a peer.
-                        // The peer ID is something we define later. In this case,
-                        // it represents the remote WebSync client ID. WebSync's
-                        // "notify" method is used to send data to a specific client.
-                        conference.addOnLinkOfferAnswer(new SingleAction<LinkOfferAnswerArgs>()
-                        {
-                            public void invoke(LinkOfferAnswerArgs e)
-                            {
-                                try
-                                {
-                                    client.notify(new NotifyArgs(new Guid(e.getPeerId()), e.getOfferAnswer().toJson(), "offeranswer"));
-                                }
-                                catch (Exception ex)
-                                {
-                                    ex.printStackTrace();
-                                }
+                    // Subscribe to a WebSync channel. When another client joins the same
+                    // channel, create a P2P link. When a client leaves, destroy it.
+                    SubscribeArgs subscribeArgs = new SubscribeArgs(websyncConferenceChannelName) {{
+                        setOnSuccess(new SingleAction<SubscribeSuccessArgs>() {
+                            public void invoke(SubscribeSuccessArgs e) {
                             }
                         });
-                        conference.addOnLinkCandidate(new SingleAction<LinkCandidateArgs>()
-                        {
-                            public void invoke(LinkCandidateArgs e)
-                            {
-                                try
-                                {
-                                    client.notify(new NotifyArgs(new Guid(e.getPeerId()), e.getCandidate().toJson(), "candidate"));
-                                }
-                                catch (Exception ex)
-                                {
-                                    ex.printStackTrace();
-                                }
+                        setOnFailure(new SingleAction<SubscribeFailureArgs>() {
+                            public void invoke(SubscribeFailureArgs e) {
+                                //                                       writeLine("-- Could not subscribe to %s. %s", e.getChannel(), e.getException().getMessage());
                             }
                         });
-
-                        // Add an event handler to the WebSync client to receive
-                        // incoming offers/answers and candidates from a peer.
-                        // Call the "receiveOfferAnswer" or "receiveCandidate"
-                        // method to pass the information to the conference.
-                        client.addOnNotify(new SingleAction<NotifyReceiveArgs>()
-                        {
-                            public void invoke(NotifyReceiveArgs e)
-                            {
-                                try
-                                {
-                                    String peerId = e.getNotifyingClient().getClientId().toString();
-                                    Object peerState = e.getNotifyingClient().getBoundRecords();
-                                    if (e.getTag().equals("offeranswer"))
-                                    {
-                                        conference.receiveOfferAnswer(OfferAnswer.fromJson(e.getDataJson()), peerId, peerState);
-                                    }
-                                    else if (e.getTag().equals("candidate"))
-                                    {
-                                        conference.receiveCandidate(Candidate.fromJson(e.getDataJson()), peerId);
-                                    }
-                                }
-                                catch (Exception ex)
-                                {
-                                    ex.printStackTrace();
-                                }
+                        setOnReceive(new SingleAction<SubscribeReceiveArgs>() {
+                            public void invoke(SubscribeReceiveArgs e) {
                             }
                         });
-
-                        // Subscribe to a WebSync channel. When another client joins the same
-                        // channel, create a P2P link. When a client leaves, destroy it.
-                        SubscribeArgs subscribeArgs = new SubscribeArgs(websyncConferenceChannelName)
-                        {{
-                            setOnSuccess(new SingleAction<SubscribeSuccessArgs>()
-                            {
-                                public void invoke(SubscribeSuccessArgs e)
-                                {
-                                }
-                            });
-                            setOnFailure(new SingleAction<SubscribeFailureArgs>()
-                            {
-                                public void invoke(SubscribeFailureArgs e)
-                                {
-                                    //                                       writeLine("-- Could not subscribe to %s. %s", e.getChannel(), e.getException().getMessage());
-                                }
-                            });
-                            setOnReceive(new SingleAction<SubscribeReceiveArgs>()
-                            {
-                                public void invoke(SubscribeReceiveArgs e) { }
-                            });
-                        }};
-                        SubscribeArgsExtensions.setOnClientSubscribe(subscribeArgs, new SingleAction<ClientSubscribeArgs>()
-                        {
-                            public void invoke(ClientSubscribeArgs e)
-                            {
-                                try
-                                {
-                                    String peerId = e.getSubscribedClient().getClientId().toString();
-                                    Object peerState = e.getSubscribedClient().getBoundRecords();
-                                    conference.link(peerId, peerState);
-                                }
-                                catch (Exception ex)
-                                {
-                                    ex.printStackTrace();
-                                }
+                    }};
+                    SubscribeArgsExtensions.setOnClientSubscribe(subscribeArgs, new SingleAction<ClientSubscribeArgs>() {
+                        public void invoke(ClientSubscribeArgs e) {
+                            try {
+                                String peerId = e.getSubscribedClient().getClientId().toString();
+                                Object peerState = e.getSubscribedClient().getBoundRecords();
+                                conference.link(peerId, peerState);
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
                             }
-                        });
-                        SubscribeArgsExtensions.setOnClientUnsubscribe(subscribeArgs, new SingleAction<ClientUnsubscribeArgs>()
-                        {
-                            public void invoke(ClientUnsubscribeArgs e)
-                            {
-                                try
-                                {
-                                    String peerId = e.getUnsubscribedClient().getClientId().toString();
-                                    conference.unlink(peerId);
-                                }
-                                catch (Exception ex)
-                                {
-                                    ex.printStackTrace();
-                                }
+                        }
+                    });
+                    SubscribeArgsExtensions.setOnClientUnsubscribe(subscribeArgs, new SingleAction<ClientUnsubscribeArgs>() {
+                        public void invoke(ClientUnsubscribeArgs e) {
+                            try {
+                                String peerId = e.getUnsubscribedClient().getClientId().toString();
+                                conference.unlink(peerId);
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
                             }
-                        });
-                        client.subscribe(subscribeArgs);
-                    }
+                        }
+                    });
+                    client.subscribe(subscribeArgs);
                 }
-                catch (Exception ex)
-                {
-                    ex.printStackTrace();
-                }
-
+            } catch (Exception ex) {
+                ex.printStackTrace();
             }
-        }.start();
+
+        }
     }
-
-
-
-
-
 }

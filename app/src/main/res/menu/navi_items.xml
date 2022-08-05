@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/navi_digital"
+        android:icon="@drawable/account_box_black_24dp"
+        android:title="@string/navi_digital" />
+    <item
+        android:id="@+id/navi_Analog"
+        android:icon="@drawable/sensors_black_24dp"
+        android:title="@string/navi_analog" />
+    <item
+        android:id="@+id/navi_Get"
+        android:icon="@drawable/sensors_black_24dp"
+        android:title="@string/navi_get" />
+</menu>
